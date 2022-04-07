@@ -11,7 +11,7 @@ on:
 
 jobs:
   ci-unit-test:
-    if: false
+    #if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +47,8 @@ jobs:
           dry_run: true
 
   ci-intergration-test:
-    if: false
+    #if: false
+    needs: ci-unit-test
     runs-on: ubuntu-latest
     services:
         mongodb:
@@ -81,7 +82,8 @@ jobs:
           path: ./coverage
 
   ci-sast:
-    if: false
+    #if: false
+    needs: ci-intergration-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -106,6 +108,7 @@ jobs:
 
 
   ci-package:
+    needs: ci-sast
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
