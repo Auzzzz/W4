@@ -105,3 +105,9 @@ jobs:
       - run: cat sast-output.json
 
       - run: exit $(cat sast-output.json | jq .total_count.sec)
+
+      - name: Uload the SAST  coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: sast-${{ github.sha }}
+          path: cat sast-output.json
