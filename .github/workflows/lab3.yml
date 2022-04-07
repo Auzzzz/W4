@@ -11,6 +11,7 @@ on:
 
 jobs:
   ci-unit-test:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -53,3 +54,36 @@ jobs:
         with:
           name: node-todo-${{ github.sha }}
           path: ./*.tgz
+
+  ci-intergration-test:
+    runs-on: ubuntu-latest
+    services:
+        mongodb:
+          image: mongo:4.0
+          options: >-
+            --health-cmd mongo
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+          ports:
+            - 27017:27017
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "npm"
+      - run: npm clean-install
+
+      - name: Running Intergration Tests
+        run: npm run integration-tests
+        env:
+          MONGO_URL: mongodb://localhost:27017/todos
+          APP_PORT: 2000
+
+      - name: Uload the UT coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: it-${{ github.sha }}
+          path: ./coverage
