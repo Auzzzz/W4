@@ -56,6 +56,7 @@ jobs:
           path: ./*.tgz
 
   ci-intergration-test:
+    if: false
     runs-on: ubuntu-latest
     services:
         mongodb:
@@ -87,3 +88,26 @@ jobs:
         with:
           name: it-${{ github.sha }}
           path: ./coverage
+
+  ci-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install NodeJsScan
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3-pip
+          pip3 install nodejsscan
+      - name: Execute Node Scan
+        run: |
+          nodejsscan -d . -o sast-output.json
+      
+      - run: cat sast-output.json
+
+      - run: exit $(cat sast-output.json | jq .total_count.sec)
+
+      - name: Uload the SAST  coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: sast-${{ github.sha }}
+          path: cat sast-output.json
