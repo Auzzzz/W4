@@ -29,6 +29,22 @@ jobs:
       - name: Run Unit-Tests
         run: npm run unit-tests
 
+      - name: Uload the UT coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: ut-${{ github.sha }}
+          path: ./coverage
+
+      - name: Validate Coverage
+        uses: codecov/codecov-action@v2
+        with:
+          directory: ./coverage
+          files: coverage-final.json
+          fail_ci_if_error: true
+          flags: unittests
+          verbose: true
+          dry_run: true
+
       - if: github.ref == 'refs/heads/main'
         run: npm pack
 
