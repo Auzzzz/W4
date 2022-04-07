@@ -46,15 +46,6 @@ jobs:
           verbose: true
           dry_run: true
 
-      - if: github.ref == 'refs/heads/main'
-        run: npm pack
-
-      - if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-todo-${{ github.sha }}
-          path: ./*.tgz
-
   ci-intergration-test:
     if: false
     runs-on: ubuntu-latest
@@ -90,6 +81,7 @@ jobs:
           path: ./coverage
 
   ci-sast:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -111,3 +103,24 @@ jobs:
         with:
           name: sast-${{ github.sha }}
           path: cat sast-output.json
+
+
+  ci-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+          cache: "npm"
+      - run: npm clean-install
+      
+      - if: github.ref == 'refs/heads/main'
+        run: npm pack
+
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: node-todo-${{ github.sha }}
+          path: ./*.tgz
